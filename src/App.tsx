@@ -1,8 +1,11 @@
+import WeatherDashboard from './components/WeatherDashboard';
+
 function App() {
+  // We are bypassing the Auth check for now so you can diagnose the UI
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <p>Start prompting (or editing) to see magic happen :)</p>
-    </div>
+    <main className="vane-theme">
+      <WeatherDashboard />
+    </main>
   );
 }
 
