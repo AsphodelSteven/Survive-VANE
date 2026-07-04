@@ -1,0 +1,1 @@
+// Figure out where communicated info and internet data go, or if a switch-case style structure can handle multi-form/format
