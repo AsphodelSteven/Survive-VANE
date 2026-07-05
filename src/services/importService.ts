@@ -51,23 +51,25 @@ export const processHistoricalImport = async (state: string, timeRange: {start: 
   }
 };
 
-export const startNWSPolling = (
-  coords: { lat: number; lon: number }, 
-  callback: (data: any) => void
+export const startPolling = (
+  fetcher: () => Promise<any>, // The specific API fetch logic
+  callback: (data: any) => void,
+  intervalMs: number = 600000 // Default to 10 mins
 ) => {
-  const NWS_POLL_INTERVAL = 600000; // 10 minutes (NWS data doesn't change second-by-second)
+  // Initial fire
+  fetcher().then(callback);
 
-  // Initial fetch
-  getNWSData(coords).then(callback);
-
-  // Set interval loop
+  // Set interval
   return setInterval(async () => {
-    const data = await getNWSDataNWS(coords);
+    const data = await fetcher();
     callback(data);
-  }, NWS_POLL_INTERVAL);
+  }, intervalMs);
 };
 
-const fetchNWS = async (coords: { lat: number; lon: number }) => {
-  // Logic to fetch from api.weather.gov/points/{lat},{lon}
-  // Followed by fetching the forecast grid URL provided in the response
-};
+// NWS:
+const nwsFetcher = () => getNWSData({ lat: 29.0, lon: -82.0 });
+const nwsPoller = startPolling(nwsFetcher, (data) => console.log('NWS Update:', data), 600000);
+
+// Open-Meteo:
+const meteoFetcher = () => getOpenMeteoData({ lat: 29.0, lon: -82.0 });
+const meteoPoller = startPolling(meteoFetcher, (data) => console.log('Meteo Update:', data), 300000);
