@@ -29,7 +29,7 @@ export default function WeatherDashboard() {
       
       <header className="mb-8 flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-mono font-bold tracking-tighter text-cyan-400">VANE // PERRY_STATION_01</h1>
+          <h1 className="text-2xl font-mono font-bold tracking-tighter text-cyan-400">VANE // TAYLOR_STATION_01</h1>
           <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">Atmospheric Network Explorer</p>
         </div>
       </header>

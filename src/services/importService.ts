@@ -1,4 +1,32 @@
 // Figure out where communicated info and internet data go, or if a switch-case style structure can handle multi-form/format
+import { createClient } from '@supabase/supabase-js'; // Once client initialized
+import JSZip from 'jszip';
+
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+
+const fetchFromStorage = async (path: string) => {
+  const { data, error } = await supabase.storage
+    .from('weather-archives') // bucket zip name
+    .download(path);
+
+  if (error) throw error;
+  return data; // Returns a Blob
+};
+
+const extractAndFormat = async (blob: Blob, timeRange: {start: Date, end: Date}) => {
+  const zip = await JSZip.loadAsync(blob);
+  // Assuming a standard CSV format inside the zip
+  const csvFile = zip.file(/.*\.csv/)[0]; 
+  const text = await csvFile.async('string');
+  
+  // Basic parsing logic (Replace this with a proper CSV parser like PapaParse)
+  const rows = text.split('\n');
+  return rows.filter(row => {
+    // Filter by date range for AI training slice
+    // Logic: if date >= timeRange.start && date <= timeRange.end
+    return true; 
+  });
+};
 
 // Define data sources
 export enum DataSource {
