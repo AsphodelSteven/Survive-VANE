@@ -1,6 +1,9 @@
 import { MeshNode, StormCountdown } from '../lib/types';
 import { bearingToCardinal, getNodeStatusColor } from '../services/meshService';
 import { Clock, Wind, AlertTriangle } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { cn } from '../lib/utils';
 
 interface TapestryMapProps {
   nodes: MeshNode[];
@@ -36,24 +39,25 @@ export function TapestryMap({ nodes, stormCountdowns }: TapestryMapProps) {
   };
 
   return (
-    <div className="bg-slate-900/60 border border-slate-700 rounded-lg p-3">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-slate-300 text-xs font-mono font-semibold uppercase tracking-widest">
+    <Card>
+      <CardHeader className="p-3 pb-0 flex flex-row items-center justify-between">
+        <CardTitle className="text-xs font-mono font-semibold uppercase tracking-widest text-slate-300">
           Tapestry Map
-        </span>
+        </CardTitle>
         <span className="text-slate-500 text-[10px] font-mono">{nodes.length} ALLIED NODES</span>
-      </div>
+      </CardHeader>
 
+      <CardContent className="p-3 pt-2">
       {stormCountdowns.length > 0 && (
         <div className="mb-2 space-y-1">
           {stormCountdowns.map(sc => (
-            <div key={sc.nodeId} className="flex items-center gap-2 px-2 py-1.5 bg-red-400/10 border border-red-400/30 rounded text-xs font-mono">
+            <Badge key={sc.nodeId} variant="destructive" className="w-full flex items-center gap-2 font-mono text-[10px] bg-red-400/10 hover:bg-red-400/20 text-red-300 border-red-400/30">
               <AlertTriangle className="w-3 h-3 text-red-400 flex-shrink-0" />
               <span className="text-red-300 font-semibold">{sc.nodeName}</span>
               <span className="text-slate-400">→ ETA</span>
               <span className="text-red-400 font-bold">{sc.eta_minutes}min</span>
               <span className="text-slate-500 ml-auto">{sc.windSpeedMph.toFixed(0)}mph</span>
-            </div>
+            </Badge>
           ))}
         </div>
       )}
@@ -139,6 +143,7 @@ export function TapestryMap({ nodes, stormCountdowns }: TapestryMapProps) {
           </div>
         ))}
       </div>
-    </div>
+    </CardContent>
+    </Card>
   );
 }

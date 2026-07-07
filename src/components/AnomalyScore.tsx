@@ -1,6 +1,9 @@
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { AnomalyScores, HistoricalAverage, SensorReading } from '../lib/types';
 import { getAnomalyColor } from '../services/anomalyService';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Card } from '../components/ui/card';
+import { Progress } from '../components/ui/progress';
+import { cn } from '../lib/utils';
 
 interface AnomalyScoreProps {
   scores: AnomalyScores;
@@ -11,7 +14,7 @@ interface AnomalyScoreProps {
 function ScoreBar({ value, label }: { value: number; label: string }) {
   const abs = Math.abs(value);
   const pct = Math.min(100, abs * 20);
-  const color = abs < 1 ? 'bg-emerald-400' : abs < 2 ? 'bg-amber-400' : abs < 3 ? 'bg-orange-400' : 'bg-red-400';
+  // const color = abs < 1 ? 'bg-emerald-400' : abs < 2 ? 'bg-amber-400' : abs < 3 ? 'bg-orange-400' : 'bg-red-400';
   const Icon = value > 0.1 ? TrendingUp : value < -0.1 ? TrendingDown : Minus;
   const textColor = getAnomalyColor(value);
 
@@ -26,16 +29,7 @@ function ScoreBar({ value, label }: { value: number; label: string }) {
           </span>
         </div>
       </div>
-      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden relative">
-        <div className="absolute inset-y-0 left-1/2 w-px bg-slate-600" />
-        <div
-          className={`absolute h-full ${color} rounded-full transition-all duration-1000`}
-          style={{
-            left: value >= 0 ? '50%' : `${50 - pct / 2}%`,
-            width: `${pct / 2}%`,
-          }}
-        />
-      </div>
+      <Progress value={pct} className="h-1.5 bg-slate-800" />
     </div>
   );
 }
@@ -43,14 +37,14 @@ function ScoreBar({ value, label }: { value: number; label: string }) {
 export function AnomalyScorePanel({ scores, reading, historical }: AnomalyScoreProps) {
   const overallAbs = Math.abs(scores.overall);
   const overallColor = overallAbs < 1 ? 'text-emerald-400 border-emerald-400/30' : overallAbs < 2 ? 'text-amber-400 border-amber-400/30' : 'text-red-400 border-red-400/30';
-  const overallBg = overallAbs < 1 ? 'bg-emerald-400/5' : overallAbs < 2 ? 'bg-amber-400/5' : 'bg-red-400/5';
+  // const overallBg = overallAbs < 1 ? 'bg-emerald-400/5' : overallAbs < 2 ? 'bg-amber-400/5' : 'bg-red-400/5';
 
   const tempDiff = historical ? reading.temp_f_corrected - historical.avg_mean_f : 0;
   const pressureDiff = historical ? reading.pressure_hpa_corrected - historical.avg_pressure_hpa : 0;
   const humidityDiff = historical ? reading.humidity_pct - historical.avg_humidity_pct : 0;
 
   return (
-    <div className={`border rounded-lg p-4 ${overallColor} ${overallBg}`}>
+    <Card className={cn("p-4 border", overallColor)}>
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-mono font-semibold uppercase tracking-widest text-slate-300">
           Anomaly Index
@@ -94,6 +88,6 @@ export function AnomalyScorePanel({ scores, reading, historical }: AnomalyScoreP
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

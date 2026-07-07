@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js'; // Once client initialized
 import JSZip from 'jszip';
 
-const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+const supabase = createClient(import.meta.env.VITE_SUPABASE_URL!, import.meta.env.VITE_SUPABASE_ANON_KEY!);
 
 const fetchFromStorage = async (path: string) => {
   const { data, error } = await supabase.storage

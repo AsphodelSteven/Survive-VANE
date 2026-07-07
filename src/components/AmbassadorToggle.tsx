@@ -1,4 +1,8 @@
 import { Radio, RadioTower, Shield } from 'lucide-react';
+import { Card } from '../components/ui/card';
+import { Switch } from '../components/ui/switch';
+import { Badge } from '../components/ui/badge';
+import { cn } from '../lib/utils';
 
 interface AmbassadorToggleProps {
   enabled: boolean;
@@ -10,7 +14,10 @@ interface AmbassadorToggleProps {
 
 export function AmbassadorToggle({ enabled, gossipCount, nodeCount, onToggle, disabled }: AmbassadorToggleProps) {
   return (
-    <div className={`border rounded-lg p-4 transition-all ${enabled ? 'border-cyan-400/40 bg-cyan-400/5' : 'border-slate-700 bg-slate-800/40'}`}>
+    <Card className={cn(
+      "p-4 transition-all",
+      enabled ? "border-cyan-400/40 bg-cyan-400/5" : "border-slate-700 bg-slate-800/40"
+    )}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <RadioTower className={`w-4 h-4 ${enabled ? 'text-cyan-400' : 'text-slate-500'}`} />
@@ -18,16 +25,11 @@ export function AmbassadorToggle({ enabled, gossipCount, nodeCount, onToggle, di
             Ambassador Mode
           </span>
         </div>
-        <button
-          onClick={() => onToggle(!enabled)}
-          disabled={disabled}
-          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-all ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} ${enabled ? 'bg-cyan-500' : 'bg-slate-700'}`}
-        >
-          <span
-            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${enabled ? 'translate-x-4.5' : 'translate-x-0.5'}`}
-            style={{ transform: enabled ? 'translateX(18px)' : 'translateX(2px)' }}
-          />
-        </button>
+        <Switch 
+          checked={enabled} 
+          onCheckedChange={onToggle} 
+          disabled={disabled} 
+        />
       </div>
 
       {disabled && (
@@ -40,9 +42,9 @@ export function AmbassadorToggle({ enabled, gossipCount, nodeCount, onToggle, di
       <div className="space-y-1.5 text-xs font-mono">
         <div className="flex items-center justify-between">
           <span className="text-slate-500">Status</span>
-          <span className={`font-semibold ${enabled ? 'text-cyan-400' : 'text-slate-600'}`}>
+          <Badge variant={enabled ? "default" : "secondary"} className="text-[10px]">
             {enabled ? 'GOSSIPING' : 'SILENT'}
-          </span>
+          </Badge>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-slate-500">Allied Nodes</span>
@@ -66,6 +68,6 @@ export function AmbassadorToggle({ enabled, gossipCount, nodeCount, onToggle, di
           Broadcasting general weather packets. Coordinates & power metrics excluded.
         </div>
       )}
-    </div>
+    </Card>
   );
 }

@@ -1,11 +1,20 @@
 import WeatherDashboard from './components/WeatherDashboard';
+import { AIDashboard } from './components/AIDashboard';
+import { AppNavigation } from './components/AppNavigation';
+import { useState } from 'react';
+
+
 
 function App() {
-  // We are bypassing the Auth check for now so you can diagnose the UI
+  const [view, setView] = useState('Dashboard');
   return (
-    <main className="vane-theme">
-      <WeatherDashboard />
-    </main>
+    <div className="min-h-screen bg-slate-950 text-slate-200">
+      <AppNavigation currentView={view} setView={setView} />
+      
+      <main className="p-4">
+        {view === 'Dashboard' ? <WeatherDashboard /> : <AIDashboard />}
+      </main>
+    </div>
   );
 }
 
