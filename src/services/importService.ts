@@ -37,7 +37,9 @@ export enum DataSource {
 
 const getOpenMeteoData = async (coords: { lat: number; lon: number }) => {
   // Logic for Open-Meteo
-  return { source: 'OPEN_METEO', data: {} }; 
+  const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m`);
+  const data = await response.json();
+  return { source: 'OPEN_METEO', data }; 
 };
 
 const getNWSData = async (coords: { lat: number; lon: number }) => {
