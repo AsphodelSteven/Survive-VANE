@@ -2,6 +2,16 @@
 import { createClient } from '@supabase/supabase-js'; // Once client initialized
 import JSZip from 'jszip';
 
+// Unified final format expectation for all data imports
+interface WeatherRecord {
+  timestamp: Date;
+  temperature: number;
+  humidity?: number;
+  pressure?: number;
+  source: DataSource;
+  raw?: any; // Keep the original for debugging
+}
+
 const supabase = createClient(import.meta.env.VITE_SUPABASE_URL!, import.meta.env.VITE_SUPABASE_ANON_KEY!);
 
 const fetchFromStorage = async (path: string) => {

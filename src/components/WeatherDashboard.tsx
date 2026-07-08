@@ -132,9 +132,9 @@ function ChartTooltip({ active, payload, label }: any) {
 // ── Sensor card ───────────────────────────────────────────────────
 
 function SensorCard({
-  icon: Icon, label, value, unit, delta, trend,
+  icon: Icon, label, value, unit, refValue, delta, trend,
 }: {
-  icon: React.ElementType; label: string; value: string; unit: string; delta: string; trend: "up" | "down" | "flat";
+  icon: React.ElementType; label: string; value: string; unit: string; refValue?: string; delta: string; trend: "up" | "down" | "flat";
 }) {
   const TrendIcon = trend === "up" ? ArrowUp : trend === "down" ? ArrowDown : Minus;
   const trendCol =
@@ -147,10 +147,18 @@ function SensorCard({
       />
       <div className="flex items-center justify-between">
         <Tag>{label}</Tag>
-        <Icon size={12} className="text-[#00d4ff]/50" />
+        <div className="flex items-center gap-2">
+          {/* This conditional rendering only shows if refValue is provided */}
+          {refValue && (
+          <span className="text-[9px] font-mono text-[#00d4ff]/60 border border-[#00d4ff]/20 px-1 rounded">
+          REF: {refValue}
+          </span>
+          )}
+          <Icon size={12} className="text-[#00d4ff]/50" />
+        </div>
       </div>
       <div className="flex items-end gap-1.5 mt-1">
-        <span
+        <span 
           className="text-[28px] font-mono font-bold text-white leading-none tracking-tight"
           style={{ textShadow: "0 0 20px rgba(0,212,255,0.2)" }}
         >
