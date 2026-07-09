@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { HistoricalAverage, SensorReading } from '../lib/types';
+import { HistoricalAverage, SensorReading } from '../../lib/types';
 
 interface TheCurveProps {
   allHistorical: HistoricalAverage[];

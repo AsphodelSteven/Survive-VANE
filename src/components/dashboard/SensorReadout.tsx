@@ -1,8 +1,8 @@
-import { SensorReading } from '../lib/types';
-import { getWindDirectionLabel } from '../services/sensorService';
+import { SensorReading } from '../../lib/types';
+// import { getWindDirectionLabel } from '../../services/sensorService';
 import { Thermometer, Gauge, Droplets, Wind, CloudRain, Activity } from 'lucide-react';
-import { Card, CardContent } from '../components/ui/card';
-import { cn } from '../lib/utils';
+import { Card, CardContent } from '../../components/ui/card';
+import { cn } from '../../lib/utils';
 
 interface SensorReadoutProps {
   reading: SensorReading;

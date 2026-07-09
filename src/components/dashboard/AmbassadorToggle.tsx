@@ -1,8 +1,8 @@
 import { Radio, RadioTower, Shield } from 'lucide-react';
-import { Card } from '../components/ui/card';
-import { Switch } from '../components/ui/switch';
-import { Badge } from '../components/ui/badge';
-import { cn } from '../lib/utils';
+import { Card } from '../../components/ui/card';
+import { Switch } from '../../components/ui/switch';
+import { Badge } from '../../components/ui/badge';
+import { cn } from '../../lib/utils';
 
 interface AmbassadorToggleProps {
   enabled: boolean;

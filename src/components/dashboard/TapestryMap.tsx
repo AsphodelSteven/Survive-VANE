@@ -1,9 +1,8 @@
-import { MeshNode, StormCountdown } from '../lib/types';
-import { bearingToCardinal, getNodeStatusColor } from '../services/meshService';
-import { Clock, Wind, AlertTriangle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { cn } from '../lib/utils';
+import { MeshNode, StormCountdown } from '../../lib/types';
+import { getNodeStatusColor } from '../../services/meshService';
+import { AlertTriangle } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 
 interface TapestryMapProps {
   nodes: MeshNode[];

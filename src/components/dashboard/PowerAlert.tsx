@@ -1,9 +1,9 @@
 import { Zap, ZapOff, AlertTriangle } from 'lucide-react';
-import { PowerState } from '../lib/types';
-import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
-import { Button } from '../components/ui/button';
-import { Progress } from '../components/ui/progress';
-import { cn } from '../lib/utils';
+import { PowerState } from '../../lib/types';
+import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
+// import { Button } from '../../components/ui/button';
+import { Progress } from '../../components/ui/progress';
+// import { cn } from '../../lib/utils';
 
 interface PowerAlertProps {
   powerState: PowerState;
