@@ -34,6 +34,7 @@ import {
   CheckCircle,
   Clock,
 } from "lucide-react";
+import { useSensorData } from '../hooks/useSensorData';
 
 type Page = "dashboard" | "analysis" | "config";
 
@@ -525,14 +526,15 @@ function Sidebar({ page, setPage }: { page: Page; setPage: (p: Page) => void }) 
 // ── Page 1: Core Dashboard ────────────────────────────────────────
 
 function CoreDashboard() {
+  const { local, api } = useSensorData();
   return (
     <div className="flex flex-col gap-4 h-full">
       {/* Sensor row */}
       <div className="grid grid-cols-4 gap-3 flex-shrink-0">
-        <SensorCard icon={Thermometer} label="Temperature" value="22.4" unit="°C" delta="+4.2°C above normal" trend="up" />
-        <SensorCard icon={Gauge} label="Pressure" value="1008.3" unit="hPa" delta="−3.2 hPa / 6 hr" trend="down" />
-        <SensorCard icon={Wind} label="Wind Speed" value="18.7" unit="kt" delta="+2.1 kt gusts NNW" trend="up" />
-        <SensorCard icon={Droplets} label="Humidity" value="71.2" unit="%" delta="−1.4 % / hr" trend="down" />
+        <SensorCard icon={Thermometer} label="Temperature" value={local?.temp_f_corrected?.toString() ?? "0"} refValue={api?.data?.current?.temperature_2m?.toString()} unit="°C" delta="+4.2°C above normal" trend="up" />
+        <SensorCard icon={Gauge} label="Pressure" value={local?.pressure_hpa_corrected?.toString() ?? "0"} refValue={api?.data?.current?.pressure_msl?.toString()} unit="hPa" delta="−3.2 hPa / 6 hr" trend="down" />
+        <SensorCard icon={Wind} label="Wind Speed" value={local?.wind_speed_mph?.toString() ?? "0"} refValue={api?.data?.current?.windspeed_10m?.toString()} unit="kt" delta="+2.1 kt gusts NNW" trend="up" />
+        <SensorCard icon={Droplets} label="Humidity" value={local?.humidity_pct?.toString() ?? "0"} refValue={api?.data?.current?.relative_humidity_2m?.toString()} unit="%" delta="−1.4 % / hr" trend="down" />
       </div>
 
       {/* Body */}
