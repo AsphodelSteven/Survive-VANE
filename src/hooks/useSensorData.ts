@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SensorReading } from '../lib/types';
-import { generateSensorReading } from '../services/sensorService';
 import { supabase } from '../lib/supabase';
 import { SENSOR_POLL_INTERVAL_MS } from '../lib/constants';
 import { fetchAPIWeatherData, DataSource } from '../services/importService';
+import { fetchLocalRadioData } from './useLocalSensorService';
 
 export function useSensorData(active: boolean = true) {
   const [local, setLocal] = useState<SensorReading | null>(null);
@@ -15,16 +15,16 @@ export function useSensorData(active: boolean = true) {
 
   const poll = useCallback(async () => {
     try {
-      const localReading = generateSensorReading(new Date());
-      setLocal(localReading);
-      setHistory(prev => {
-        const next = [localReading, ...prev].slice(0, 120);
-        return next;
-      });
+      const localReading = await fetchLocalRadioData();
+      if (localReading) {
+        setLocal(localReading);
+        setHistory(prev => [localReading, ...prev].slice(0,120));
+        await supabase.from('sensor_readings').insert([localReading]);
+      }
+      
       const apiData = await fetchAPIWeatherData(DataSource.OPEN_METEO, { lat: 29.0, lon: -82.0 });
     setApi(apiData);
 
-      await supabase.from('sensor_readings').insert([localReading]);
     } catch (err) {
       setError(String(err));
     } finally {
