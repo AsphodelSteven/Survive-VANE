@@ -2,6 +2,8 @@
 import { createClient } from '@supabase/supabase-js'; // Once client initialized
 import JSZip from 'jszip';
 
+const DEFAULT_COORDS = { lat: 29.0, lon: -82.0 };
+
 // Unified final format expectation for all data imports
 interface WeatherRecord {
   timestamp: Date;
@@ -46,8 +48,10 @@ export enum DataSource {
 }
 
 const getOpenMeteoData = async (coords: { lat: number; lon: number }) => {
-  // Logic for Open-Meteo
-  const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m`);
+  const params = "temperature_2m,relative_humidity_2m,pressure_msl,windspeed_10m";
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=${params}`;
+  
+  const response = await fetch(url);
   const data = await response.json();
   return { source: 'OPEN_METEO', data }; 
 };
@@ -107,9 +111,9 @@ export const startPolling = (
 };
 
 // NWS:
-const nwsFetcher = () => getNWSData({ lat: 29.0, lon: -82.0 });
+const nwsFetcher = () => getNWSData(DEFAULT_COORDS);
 const nwsPoller = startPolling(nwsFetcher, (data) => console.log('NWS Update:', data), 600000);
 
 // Open-Meteo:
-const meteoFetcher = () => getOpenMeteoData({ lat: 29.0, lon: -82.0 });
+const meteoFetcher = () => getOpenMeteoData(DEFAULT_COORDS);
 const meteoPoller = startPolling(meteoFetcher, (data) => console.log('Meteo Update:', data), 300000);

@@ -23,7 +23,8 @@ export function useSensorData(active: boolean = true) {
       }
       
       const apiData = await fetchAPIWeatherData(DataSource.OPEN_METEO, { lat: 29.0, lon: -82.0 });
-    setApi(apiData);
+      console.log("DEBUG API DATA:", apiData);
+      setApi(apiData);
 
     } catch (err) {
       setError(String(err));

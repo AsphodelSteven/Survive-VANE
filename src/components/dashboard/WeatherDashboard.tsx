@@ -49,10 +49,10 @@ export function WeatherDashboard() {
     <div className="flex flex-col gap-4 h-full">
       {/* Sensor row */}
       <div className="grid grid-cols-4 gap-3 flex-shrink-0">
-        <SensorCard icon={Thermometer} label="Temperature" value={local?.temp_f_corrected?.toString() ?? "0"} refValue={api?.data?.current?.temperature_2m?.toString()} unit="°C" delta="+4.2°C above normal" trend="up" />
-        <SensorCard icon={Gauge} label="Pressure" value={local?.pressure_hpa_corrected?.toString() ?? "0"} refValue={api?.data?.current?.pressure_msl?.toString()} unit="hPa" delta="−3.2 hPa / 6 hr" trend="down" />
-        <SensorCard icon={Wind} label="Wind Speed" value={local?.wind_speed_mph?.toString() ?? "0"} refValue={api?.data?.current?.windspeed_10m?.toString()} unit="kt" delta="+2.1 kt gusts NNW" trend="up" />
-        <SensorCard icon={Droplets} label="Humidity" value={local?.humidity_pct?.toString() ?? "0"} refValue={api?.data?.current?.relative_humidity_2m?.toString()} unit="%" delta="−1.4 % / hr" trend="down" />
+        <SensorCard icon={Thermometer} label="Temperature" value={local?.temp_f_corrected?.toString() ?? "N/A"} refValue={api?.data?.current?.temperature_2m?.toString() ?? "N/A"} unit="°F" delta="+4.2°C above normal" trend="up" />
+        <SensorCard icon={Gauge} label="Pressure" value={local?.pressure_hpa_corrected?.toString() ?? "N/A"} refValue={api?.data?.current?.pressure_msl?.toString() ?? "N/A"} unit="hPa" delta="−3.2 hPa / 6 hr" trend="down" />
+        <SensorCard icon={Wind} label="Wind Speed" value={local?.wind_speed_mph?.toString() ?? "N/A"} refValue={api?.data?.current?.windspeed_10m?.toString() ?? "N/A"} unit="kt" delta="+2.1 kt gusts NNW" trend="up" />
+        <SensorCard icon={Droplets} label="Humidity" value={local?.humidity_pct?.toString() ?? "N/A"} refValue={api?.data?.current?.relative_humidity_2m?.toString() ?? "N/A"} unit="%" delta="−1.4 % / hr" trend="down" />
       </div>
 
       {/* Body */}
