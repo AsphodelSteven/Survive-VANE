@@ -5,6 +5,7 @@ interface TheCurveProps {
   allHistorical: HistoricalAverage[];
   sensorHistory: SensorReading[];
   currentReading: SensorReading | null;
+  prediction: number | null;
 }
 
 // Moved logic outside to clean up the main component
@@ -18,7 +19,7 @@ const pathFromPoints = (pts: { x: number; y: number }[]): string => {
   }, '');
 };
 
-export function TheCurve({ allHistorical, sensorHistory, currentReading }: TheCurveProps) {
+export function TheCurve({ allHistorical, sensorHistory, currentReading, prediction }: TheCurveProps) {
   const { W, H, PAD, plotW, plotH } = { W: 700, H: 200, PAD: { top: 16, right: 20, bottom: 30, left: 42 }, plotW: 638, plotH: 154 };
   
   // Memoized coordinate mapping
@@ -36,16 +37,24 @@ export function TheCurve({ allHistorical, sensorHistory, currentReading }: TheCu
     const highPts = hist.map(d => ({ x: toX(d.day_of_year), y: toY(d.avg_high_f) }));
     const lowPts = hist.map(d => ({ x: toX(d.day_of_year), y: toY(d.avg_low_f) }));
     
+    // live path points
+    const livePoints = sensorHistory.slice(0, 60).reverse().map((r, i) => ({
+    x: toX(todayDoy) - (60 - i) * 0.8,
+    y: toY(r.temp_f_corrected)
+  }));
+
+  // Add the prediction point if available
+  if (prediction !== null) {
+    livePoints.push({ x: toX(todayDoy) + 5, y: toY(prediction) });
+  }
+
     return {
       high: pathFromPoints(highPts),
       low: pathFromPoints(lowPts),
       band: `${pathFromPoints(highPts)} L ${lowPts[lowPts.length-1].x} ${lowPts[lowPts.length-1].y} ${pathFromPoints(lowPts.reverse())} Z`,
-      live: pathFromPoints(sensorHistory.slice(0, 60).reverse().map((r, i) => ({
-        x: toX(todayDoy) - (60 - i) * 0.8,
-        y: toY(r.temp_f_corrected)
-      })))
+      live: pathFromPoints(livePoints)
     };
-  }, [allHistorical, sensorHistory, todayDoy]);
+  }, [allHistorical, sensorHistory, todayDoy, prediction]);
 
   return (
     <div className="bg-slate-900/60 border border-slate-700 rounded-lg p-3">

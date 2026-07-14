@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -21,30 +22,31 @@ import { Tag } from '../shared/Tag';
 import { ChartToolTip } from '../shared/ChartToolTip';
 import { MeshNetwork } from "./MeshNetwork";
 
-// ── Static data ──────────────────────────────────────────────────
-
-const curveData = (() => {
-  const base = [2, 1, 0, -1, -2, -2, 0, 3, 7, 12, 16, 19, 21, 22, 22, 20, 18, 15, 11, 8, 6, 5, 4, 3];
-  return base.map((v, i) => ({
-    time: `${String(i).padStart(2, "0")}:00`,
-    live: parseFloat((v + (Math.sin(i * 0.9) * 2.1 + Math.cos(i * 0.5) * 1.3)).toFixed(1)),
-    normal: v,
-  }));
-})();
-
-const anomalies = [
-  { id: 1, level: "HIGH", value: "+4.2σ", label: "Temp deviation", time: "14:22", active: true },
-  { id: 2, level: "MED", value: "+1.8σ", label: "Pressure drop", time: "13:55", active: true },
-  { id: 3, level: "LOW", value: "+0.9σ", label: "Humidity spike", time: "13:41", active: false },
-  { id: 4, level: "HIGH", value: "−3.1σ", label: "Wind shear event", time: "13:12", active: true },
-  { id: 5, level: "LOW", value: "+1.1σ", label: "Dew point shift", time: "12:58", active: false },
-  { id: 6, level: "MED", value: "−2.3σ", label: "Barometric trend", time: "12:34", active: false },
-];
-
 // ── Page 1: Core Dashboard ────────────────────────────────────────
 
 export function WeatherDashboard() {
-  const { local, api } = useSensorData();
+  const { local, api, history } = useSensorData();
+  const chartData = useMemo(() => {
+  // Convert 120-item history into a smaller, Recharts-friendly format
+  return history.slice(0, 24).reverse().map((r, i) => ({
+    time: `${i}:00`, // Or format a timestamp
+    live: r.temp_f_corrected,
+    normal: api?.data?.current?.temperature_2m ?? 0 // Use API as a baseline
+  }));
+}, [history, api]);
+const dynamicAnomalies = useMemo(() => {// If history is empty, return an array of 24 points of "dummy" data
+  if (!history || history.length === 0) {
+    // return Array.from({ length: 24 }).map((_, i) => ({
+    //   time: `${i}:00`,
+    //   live: 70 + Math.random() * 5, // Simulated temp
+    //   normal: 72
+    // }));
+    return []
+  }
+  // Logic to determine if local temp is > 5 degrees from API baseline
+  const isAnomaly = Math.abs((local?.temp_f_corrected ?? 0) - (api?.data?.current?.temperature_2m ?? 0)) > 5;
+  return isAnomaly ? [{ id: 1, level: "HIGH", value: "ALERT", label: "Thermal Drift", time: "NOW", active: true }] : [];
+}, [local, api, history]);
   return (
     <div className="flex flex-col gap-4 h-full">
       {/* Sensor row */}
@@ -77,7 +79,7 @@ export function WeatherDashboard() {
           </div>
           <div className="flex-1 min-h-0" style={{ minHeight: 200 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={curveData} margin={{ top: 12, right: 12, left: -28, bottom: 0 }}>
+              <LineChart data={chartData} margin={{ top: 12, right: 12, left: -28, bottom: 0 }}>
                 <defs>
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="2" result="coloredBlur" />
@@ -121,11 +123,11 @@ export function WeatherDashboard() {
               <Tag>Anomaly Index</Tag>
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b6b] animate-pulse inline-block" />
-                <span className="text-[9px] font-mono text-[#ff6b6b]/70">3 ACTIVE</span>
+                <span className="text-[9px] font-mono text-[#ff6b6b]/70">{dynamicAnomalies.length > 0 ? `${dynamicAnomalies.length} ACTIVE` : "SYSTEM OK"}</span>
               </div>
             </div>
             <div className="space-y-1.5 overflow-y-auto flex-1">
-              {anomalies.map((a) => (
+              {dynamicAnomalies.map((a) => (
                 <div
                   key={a.id}
                   className={`flex items-center justify-between p-2.5 rounded border ${
