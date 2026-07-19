@@ -13,8 +13,15 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { calculateAnomalyScores } from './../../services/anomalyService';
+import { useSensorData } from '../../hooks/useSensorData';
 
 export function AIDashboard() {
+  const { local, api } = useSensorData();
+  const scores = calculateAnomalyScores(local, api?.data?.historical);
+
+  const confidence = Math.max(0, Math.min(100, 100 - (Math.abs(scores.overall) * 15)));
+
   const forecastData = (() =>
   Array.from({ length: 31 }, (_, i) => {
     const base = 0.08 + Math.sin(i * 0.28) * 0.06 + (i > 18 ? (i - 18) * 0.018 : 0);
@@ -99,7 +106,7 @@ export function AIDashboard() {
         </GlassCard>
 
         {/* Confidence meter */}
-        <ConfidenceMeter value={87} />
+        <ConfidenceMeter value={Math.round(confidence)} />
       </div>
 
       {/* Event Log */}
