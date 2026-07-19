@@ -78,6 +78,12 @@ const dynamicAnomalies = useMemo(() => {// If history is empty, return an array 
             </div>
           </div>
           <div className="flex-1 min-h-0" style={{ minHeight: 200 }}>
+            {chartData.length === 0 ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/80 z-10 border border-dashed border-slate-700">
+                <span className="text-[10px] font-mono text-[#ff6b6b] tracking-widest">NO SIGNAL</span>
+                <span className="text-[8px] font-mono text-slate-500 mt-1">AWAITING RADIO HANDSHAKE</span>
+              </div>
+            ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 12, right: 12, left: -28, bottom: 0 }}>
                 <defs>
@@ -112,6 +118,7 @@ const dynamicAnomalies = useMemo(() => {// If history is empty, return an array 
                 />
               </LineChart>
             </ResponsiveContainer>
+            )}
           </div>
         </GlassCard>
 
@@ -127,7 +134,8 @@ const dynamicAnomalies = useMemo(() => {// If history is empty, return an array 
               </div>
             </div>
             <div className="space-y-1.5 overflow-y-auto flex-1">
-              {dynamicAnomalies.map((a) => (
+              {dynamicAnomalies.length > 0 ? (
+              dynamicAnomalies.map((a) => (
                 <div
                   key={a.id}
                   className={`flex items-center justify-between p-2.5 rounded border ${
@@ -153,7 +161,14 @@ const dynamicAnomalies = useMemo(() => {// If history is empty, return an array 
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+          ) : (
+          <div className="flex flex-col items-center justify-center h-full opacity-60">
+            <div className="text-[9px] font-mono text-amber-500/70 border border-amber-500/20 px-2 py-1 rounded">
+              STANDBY: LINK INACTIVE
+            </div>
+          </div>
+          )}
             </div>
           </GlassCard>
 
