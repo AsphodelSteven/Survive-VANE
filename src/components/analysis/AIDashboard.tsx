@@ -1,4 +1,4 @@
-// import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 // import { fetchAPIWeatherData, DataSource } from '../../services/importService';
 import { GlassCard } from '../shared/GlassCard';
 import { Tag } from '../shared/Tag';
@@ -15,10 +15,27 @@ import {
 } from "recharts";
 import { calculateAnomalyScores } from './../../services/anomalyService';
 import { useSensorData } from '../../hooks/useSensorData';
+import { SensorReading } from '../../lib/types';
 
 export function AIDashboard() {
   const { local, api } = useSensorData();
-  const scores = calculateAnomalyScores(local, api?.data?.historical);
+  const defaultReading: SensorReading = {
+  station_id: "KORD-NULL",
+  recorded_at: new Date().toISOString(),
+  temp_f_raw: 0,
+  temp_f_corrected: 0,
+  pressure_hpa_raw: 0,
+  pressure_hpa_corrected: 0,
+  humidity_pct: 0,
+  eco2_ppm: 0,
+  tvoc_ppb: 0,
+  wind_speed_mph: 0,
+  wind_direction_deg: 0,
+  wind_gust_mph: 0,
+  rain_in_hr: 0,
+  sensor_source: "SYSTEM_NULL"
+};
+  const scores = calculateAnomalyScores(local ?? defaultReading, api?.data?.historical ?? null);
 
   const confidence = Math.max(0, Math.min(100, 100 - (Math.abs(scores.overall) * 15)));
 
@@ -34,18 +51,45 @@ export function AIDashboard() {
     };
   }))();
 
-  const eventLog = [
-  { id: 1, time: "14:22:07", type: "ALERT", sev: "high", msg: "Divergence threshold exceeded: temp +4.2σ from NWS grid cell K7-ECHO" },
-  { id: 2, time: "14:19:33", type: "INFO", sev: "info", msg: "Mesh node ALPHA-7 reporting nominal sync with Open-Meteo ensemble feed" },
-  { id: 3, time: "14:15:18", type: "WARN", sev: "med", msg: "Pressure gradient mismatch: local −3.2 hPa vs regional −1.8 hPa (6-hr trend)" },
-  { id: 4, time: "14:08:52", type: "ALERT", sev: "high", msg: "Wind shear: surface-to-850mb differential 34 kt — exceeds model event threshold" },
-  { id: 5, time: "14:02:41", type: "INFO", sev: "info", msg: "Archive batch NOAA-2023-Q4 ingestion complete — 18,240 records indexed" },
-  { id: 6, time: "13:58:14", type: "WARN", sev: "med", msg: "Open-Meteo API latency 2,140 ms — falling back to cached regional grid snapshot" },
-  { id: 7, time: "13:51:09", type: "INFO", sev: "info", msg: "Checkpoint saved: VANE-PRED-v2.4.1 | loss: 0.0082 | val_acc: 97.3% | epoch: 440" },
-  { id: 8, time: "13:44:32", type: "ALERT", sev: "high", msg: "Sensor BETA-2 outlier: 97.4% RH vs mesh avg 71.2% — isolation recommended" },
-];
+//   const eventLog = [
+//   { id: 1, time: "14:22:07", type: "ALERT", sev: "high", msg: "Divergence threshold exceeded: temp +4.2σ from NWS grid cell K7-ECHO" },
+//   { id: 2, time: "14:19:33", type: "INFO", sev: "info", msg: "Mesh node ALPHA-7 reporting nominal sync with Open-Meteo ensemble feed" },
+//   { id: 3, time: "14:15:18", type: "WARN", sev: "med", msg: "Pressure gradient mismatch: local −3.2 hPa vs regional −1.8 hPa (6-hr trend)" },
+//   { id: 4, time: "14:08:52", type: "ALERT", sev: "high", msg: "Wind shear: surface-to-850mb differential 34 kt — exceeds model event threshold" },
+//   { id: 5, time: "14:02:41", type: "INFO", sev: "info", msg: "Archive batch NOAA-2023-Q4 ingestion complete — 18,240 records indexed" },
+//   { id: 6, time: "13:58:14", type: "WARN", sev: "med", msg: "Open-Meteo API latency 2,140 ms — falling back to cached regional grid snapshot" },
+//   { id: 7, time: "13:51:09", type: "INFO", sev: "info", msg: "Checkpoint saved: VANE-PRED-v2.4.1 | loss: 0.0082 | val_acc: 97.3% | epoch: 440" },
+//   { id: 8, time: "13:44:32", type: "ALERT", sev: "high", msg: "Sensor BETA-2 outlier: 97.4% RH vs mesh avg 71.2% — isolation recommended" },
+// ];
 
+const dynamicLogs = useMemo(() => {
+  // const readings = (history as any) as SensorReading[];
+  const readings = Array.isArray(history) ? history : (history ? Object.values(history) : []);
+
+  const baseline = api?.data?.historical ?? null;
+  
+  return readings.filter((r: SensorReading) => {
+    try {
+      return Math.abs(calculateAnomalyScores(r, baseline).overall) > 2
+    } catch {
+      return false;
+    }
+  }).map((r: SensorReading) => ({
+    id: r.id || r.recorded_at, // Use recorded_at as a fallback ID
+    time: new Date(r.recorded_at).toLocaleTimeString(),
+    type: "ALERT" as const,
+    sev: "high" as const,
+    msg: `Divergence detected: ${r.temp_f_corrected}°F exceeds baseline.`
+  }));
+}, [history, api]);
+if (!history && !local) {
   return (
+    <div className="flex items-center justify-center h-full text-cyan-400 font-mono">
+      INITIALIZING TELEMETRY LINK...
+    </div>
+  );
+}
+ else return (
     <div className="flex flex-col gap-4 h-full">
       {/* Top row */}
       <div className="grid gap-4 flex-shrink-0" style={{ gridTemplateColumns: "1fr 240px" }}>
@@ -64,7 +108,7 @@ export function AIDashboard() {
               </div>
             </div>
           </div>
-          <div className="flex-1" style={{ minHeight: 220 }}>
+          <div className="h-[240px] w-full mt-2" style={{ minHeight: 220 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={forecastData} margin={{ top: 12, right: 12, left: -28, bottom: 0 }}>
                 <defs>
@@ -117,7 +161,7 @@ export function AIDashboard() {
             <span className="text-[9px] font-mono text-[#1a2a34]">— Divergence Alerts</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[9px] font-mono text-[#1a2a34]">{eventLog.length} ENTRIES</span>
+            <span className="text-[9px] font-mono text-[#1a2a34]">{dynamicLogs.length} ENTRIES</span>
             <div className="w-px h-3 bg-[rgba(0,212,255,0.1)]" />
             <div className="flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-[#00d4ff] animate-pulse inline-block" />
@@ -126,7 +170,7 @@ export function AIDashboard() {
           </div>
         </div>
         <div className="space-y-1 overflow-y-auto flex-1">
-          {eventLog.map((e) => (
+          {(dynamicLogs || []).map((e) => (
             <div
               key={e.id}
               className={`flex items-start gap-3 px-3 py-2.5 rounded border ${

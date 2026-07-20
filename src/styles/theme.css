@@ -122,6 +122,10 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme {
+  --color-border: rgba(0, 212, 255, 0.12);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
