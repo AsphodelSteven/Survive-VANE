@@ -19,16 +19,15 @@ export function useSensorData(active: boolean = true) {
       const localReading = await fetchLocalRadioData();
       if (localReading) {
         setLocal(localReading);
-        // setHistory(prev => [localReading, ...prev].slice(0,120));
         // 1. Update history
-      const newHistory = [localReading, ...history].slice(0, 120);
-      setHistory(newHistory);
+        setHistory(prevHistory => {
+                const newHistory = [localReading, ...prevHistory].slice(0, 120);
 
       // 2. Simple Linear Regression (AI Baseline)
       // Only calculate if we have at least 5 data points
       if (newHistory.length >= 5) {
         const y = newHistory.slice(0, 5).map(r => r.temp_f_corrected);
-        const x = [0, 1, 2, 3, 4]; // Time steps
+        // const x = [0, 1, 2, 3, 4]; // Time steps
         
         // Calculate slope (m) = (N*sum(xy) - sum(x)*sum(y)) / (N*sum(x^2) - sum(x)^2)
         const m = (5 * (0*y[0]+1*y[1]+2*y[2]+3*y[3]+4*y[4]) - 10 * (y[0]+y[1]+y[2]+y[3]+y[4])) / 
@@ -37,6 +36,8 @@ export function useSensorData(active: boolean = true) {
         // Predict next value (in 1 poll interval)
         setPrediction(localReading.temp_f_corrected + m);
       }
+      return newHistory;
+        });
       }
         await supabase.from('sensor_readings').insert([localReading]);
 
@@ -49,7 +50,7 @@ export function useSensorData(active: boolean = true) {
     } finally {
       setLoading(false);
     }
-  }, [history]);
+  }, []);
 
   useEffect(() => {
     if (!active) return;

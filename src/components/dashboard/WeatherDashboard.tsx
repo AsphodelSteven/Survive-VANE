@@ -26,14 +26,24 @@ import { MeshNetwork } from "./MeshNetwork";
 
 export function WeatherDashboard() {
   const { local, api, history } = useSensorData();
+
   const chartData = useMemo(() => {
   // Convert 120-item history into a smaller, Recharts-friendly format
-  return history.slice(0, 24).reverse().map((r, i) => ({
-    time: `${i}:00`, // Or format a timestamp
-    live: r.temp_f_corrected,
-    normal: api?.data?.current?.temperature_2m ?? 0 // Use API as a baseline
-  }));
+  return history.slice(0, 24).reverse().map((r) => {
+    // Extract a clean time label (e.g., "18:58") from recorded_at
+    const dateObj = new Date(r.recorded_at);
+    const timeLabel = isNaN(dateObj.getTime()) 
+      ? "Now" 
+      : `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}`;
+
+    return {
+      time: timeLabel,
+      live: r.temp_f_corrected,
+      normal: (api?.data?.current?.temperature_2m ?? 20) * 9/5 + 32
+    };
+  });
 }, [history, api]);
+
 const dynamicAnomalies = useMemo(() => {// If history is empty, return an array of 24 points of "dummy" data
   if (!history || history.length === 0) {
     // return Array.from({ length: 24 }).map((_, i) => ({
@@ -64,7 +74,7 @@ const dynamicAnomalies = useMemo(() => {// If history is empty, return an array 
           <div className="flex items-center justify-between mb-1 flex-shrink-0">
             <div>
               <h2 className="text-[13px] font-mono font-semibold text-white tracking-[0.14em]">THE CURVE</h2>
-              <p className="text-[9px] font-mono text-[#00d4ff]/38 mt-0.5 tracking-wider">
+              <p className="text-[9px] font-mono text-[#00d4ff]/70 mt-0.5 tracking-wider">
                 Live observation vs 30-yr climatological normal — KORD
               </p>
             </div>

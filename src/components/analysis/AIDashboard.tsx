@@ -98,7 +98,7 @@ if (!history && !local) {
           <div className="flex items-center justify-between mb-1 flex-shrink-0">
             <div>
               <h2 className="text-[13px] font-mono font-semibold text-white tracking-[0.14em]">PREDICTIVE FORECAST</h2>
-              <p className="text-[9px] font-mono text-[#00d4ff]/38 mt-0.5 tracking-wider">
+              <p className="text-[9px] font-mono text-[#00d4ff]/70 mt-0.5 tracking-wider">
                 Localized precipitation probability — 30-min rolling projection
               </p>
             </div>
